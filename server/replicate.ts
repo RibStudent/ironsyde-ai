@@ -13,7 +13,7 @@ export interface GenerateAvatarOptions {
   seed?: number;
   guidanceScale?: number;
   numInferenceSteps?: number;
-  model?: "flux-pro" | "flux-dev" | "sdxl" | "seedream-4";
+  model?: "flux-pro" | "flux-dev" | "flux-schnell" | "sdxl" | "seedream-4" | "qwen-image-edit";
   imageUrl?: string; // For image-to-image generation
   strength?: number; // How much to transform the input image (0-1)
 }
@@ -76,6 +76,33 @@ export async function generateAvatar(
           num_inference_steps: numInferenceSteps,
           ...(seed && { seed }),
           ...(imageUrl && { image: imageUrl, prompt_strength: strength }),
+        },
+      });
+    } else if (model === "flux-schnell") {
+      // Flux Schnell - fast generation
+      modelVersion = "black-forest-labs/flux-schnell";
+      output = await replicate.run(modelVersion, {
+        input: {
+          prompt,
+          width,
+          height,
+          num_outputs: numOutputs,
+          ...(seed && { seed }),
+        },
+      });
+    } else if (model === "qwen-image-edit") {
+      // Qwen Image Edit - for editing existing images
+      if (!imageUrl) {
+        throw new Error("Qwen Image Edit requires an input image");
+      }
+      modelVersion = "qwen/qwen-image-edit";
+      output = await replicate.run(modelVersion, {
+        input: {
+          image: imageUrl,
+          prompt,
+          guidance_scale: guidanceScale,
+          num_inference_steps: numInferenceSteps,
+          ...(seed && { seed }),
         },
       });
     } else if (model === "seedream-4") {

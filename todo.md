@@ -170,3 +170,17 @@
 ## Deployment
 - [ ] Push project to GitHub repository
 
+
+
+## Multi-Model AI Support
+
+- [x] Add Qwen model for photo editing
+- [x] Add Flux models for high-quality generation
+- [x] Add SDXL for photorealistic generation
+- [x] Keep SeeDream-4 as default
+- [x] Create model selection UI in generation page
+- [x] Add model descriptions and use cases
+- [x] Update backend to support multiple model endpoints
+- [x] Add model-specific parameter handling
+- [x] Test each model for quality and performance
+

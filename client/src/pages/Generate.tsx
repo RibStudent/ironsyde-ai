@@ -18,12 +18,14 @@ import { Loader2, Sparkles, Image as ImageIcon, Upload, Wand2 } from "lucide-rea
 import { toast } from "sonner";
 import { Link } from "wouter";
 import { STYLE_PRESETS } from "@shared/presets";
+import { AI_MODELS, getGenerationModels, getEditingModels } from "../../../shared/models";
 
 export default function Generate() {
   const { user, isAuthenticated } = useAuth();
   const [prompt, setPrompt] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("low quality, blurry, distorted, deformed, ugly");
-  const [model, setModel] = useState<"flux-pro" | "flux-dev" | "sdxl" | "seedream-4">("seedream-4");
+  const [model, setModel] = useState<string>("seedream-4");
+  const [modelCategory, setModelCategory] = useState<"generation" | "editing">("generation");
   const [width, setWidth] = useState(1024);
   const [height, setHeight] = useState(1024);
   const [referenceImage, setReferenceImage] = useState<File | null>(null);
@@ -307,20 +309,77 @@ export default function Generate() {
                     />
                   </div>
 
+                  {/* Model Category Selection */}
+                  <div>
+                    <Label className="text-white mb-2 block">
+                      Model Category
+                    </Label>
+                    <div className="flex gap-2 mb-4">
+                      <Button
+                        type="button"
+                        variant={modelCategory === "generation" ? "default" : "outline"}
+                        className={modelCategory === "generation" ? "bg-gradient-to-r from-pink-600 to-pink-600" : "border-white/20"}
+                        onClick={() => {
+                          setModelCategory("generation");
+                          setModel("seedream-4");
+                        }}
+                      >
+                        Generation
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={modelCategory === "editing" ? "default" : "outline"}
+                        className={modelCategory === "editing" ? "bg-gradient-to-r from-pink-600 to-pink-600" : "border-white/20"}
+                        onClick={() => {
+                          setModelCategory("editing");
+                          setModel("qwen-image-edit");
+                        }}
+                      >
+                        Editing
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Model Selection */}
                   <div>
                     <Label htmlFor="model" className="text-white mb-2 block">
-                      Model
+                      AI Model
                     </Label>
-                    <Select value={model} onValueChange={(v: any) => setModel(v)}>
+                    <Select value={model} onValueChange={(v: string) => setModel(v)}>
                       <SelectTrigger className="bg-black/30 border-pink-500/30 text-white">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="flux-dev">Flux Dev (Recommended)</SelectItem>
-                        <SelectItem value="flux-pro">Flux Pro (Highest Quality)</SelectItem>
-                        <SelectItem value="sdxl">SDXL (Fast)</SelectItem>
+                      <SelectContent className="bg-[#0a0a14] border-pink-500/30">
+                        {modelCategory === "generation" && getGenerationModels().map((m) => (
+                          <SelectItem key={m.id} value={m.id} className="text-white">
+                            <div className="flex flex-col">
+                              <span className="font-semibold">{m.name}</span>
+                              <span className="text-xs text-gray-400">{m.estimatedTime} · {m.costPerImage} credits</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                        {modelCategory === "editing" && getEditingModels().map((m) => (
+                          <SelectItem key={m.id} value={m.id} className="text-white">
+                            <div className="flex flex-col">
+                              <span className="font-semibold">{m.name}</span>
+                              <span className="text-xs text-gray-400">{m.estimatedTime} · {m.costPerImage} credits</span>
+                            </div>
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
+                    {AI_MODELS[model] && (
+                      <div className="mt-2 p-3 bg-pink-900/20 rounded-lg border border-pink-500/20">
+                        <p className="text-sm text-gray-300 mb-2">{AI_MODELS[model].description}</p>
+                        <div className="flex flex-wrap gap-1">
+                          {AI_MODELS[model].strengths.map((strength) => (
+                            <span key={strength} className="text-xs px-2 py-1 bg-pink-500/20 rounded text-pink-300">
+                              {strength}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
