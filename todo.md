@@ -375,3 +375,13 @@
 - [x] Debug console errors causing application not to load
 - [x] Verify all routes and components render correctly
 
+
+
+
+## GitHub Repository
+
+- [ ] Create new GitHub repository for IronSyde
+- [ ] Initialize git and commit all files
+- [ ] Push code to GitHub
+- [ ] Verify repository is accessible
+
