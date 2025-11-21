@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Loader2, Send, Image as ImageIcon, Phone, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { canAccessFeature } from "../../../shared/subscriptionTiers";
-import VoiceChat from "@/components/VoiceChat";
+import EVIChat from "@/components/EVIChat";
 import { VideoAvatar } from "@/components/VideoAvatar";
 
 export default function Chat() {
@@ -197,11 +197,15 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* Voice Chat Section */}
+      {/* EVI Voice Chat Section */}
       {user && conversationId && (
         <div className="border-t border-pink-500/20 bg-[#0a0a14]/95 backdrop-blur-sm">
           <div className="container mx-auto px-4 py-4 max-w-3xl">
-            <VoiceChat conversationId={conversationId} avatarId={avatarId} />
+            <EVIChat 
+              avatarId={avatarId} 
+              avatarName={conversation?.avatar?.name || "Your Avatar"}
+              personality="seductive"
+            />
           </div>
         </div>
       )}

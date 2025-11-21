@@ -25,6 +25,9 @@ importers:
       '@google/generative-ai':
         specifier: ^0.24.1
         version: 0.24.1
+      '@humeai/voice-react':
+        specifier: ^0.2.9
+        version: 0.2.9(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@livekit/agents':
         specifier: ^1.0.20
         version: 1.0.20(@livekit/rtc-node@0.13.21)(zod@4.1.12)
@@ -154,6 +157,9 @@ importers:
       framer-motion:
         specifier: ^12.23.22
         version: 12.23.22(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      hume:
+        specifier: ^0.15.6
+        version: 0.15.6
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -1065,6 +1071,12 @@ packages:
   '@google/generative-ai@0.24.1':
     resolution: {integrity: sha512-MqO+MLfM6kjxcKoy0p1wRzG3b4ZZXtPI+z2IE26UogS2Cm/XHO+7gGRBh6gcJsOiIVoH93UwKvW4HdgiOZCy9Q==}
     engines: {node: '>=18.0.0'}
+
+  '@humeai/voice-react@0.2.9':
+    resolution: {integrity: sha512-/8LmZpyHAqOZruYpPjSMiRDpb8jAyq3XI3LXq3SpEuuar5MCMfhdqW9Y2z0VMjADXsNt+MX+qShIXM0D7ZS1gQ==}
+    peerDependencies:
+      react: '>=18.2.0'
+      react-dom: '>=18.2.0'
 
   '@img/sharp-darwin-arm64@0.34.3':
     resolution: {integrity: sha512-ryFMfvxxpQRsgZJqBd4wsttYQbCxsJksrv9Lw/v798JcQ8+w84mBWuXwl+TT0WJ/WrYOLaYpwQXi3sA9nTIaIg==}
@@ -3002,6 +3014,9 @@ packages:
   date-fns-jalali@4.1.0-0:
     resolution: {integrity: sha512-hTIP/z+t+qKwBDcmmsnmjWTduxCg+5KfdqWQvb2X/8C9+knYY6epN/pfxdDuyVlSVeFz0sM5eEfwIUQ70U4ckg==}
 
+  date-fns@3.6.0:
+    resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
+
   date-fns@4.1.0:
     resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
@@ -3500,6 +3515,10 @@ packages:
   https-proxy-agent@7.0.6:
     resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
     engines: {node: '>= 14'}
+
+  hume@0.15.6:
+    resolution: {integrity: sha512-dO2F+z/6OzW8MyHJlAySuCKsqTJk1krViSEcdlGTd5M/TwFvvoN8QdvTv90HFL2GYUXgUXCquKgRpO0GjVrHFA==}
+    engines: {node: '>=18.0.0'}
 
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -4521,6 +4540,10 @@ packages:
 
   uuid@11.1.0:
     resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
+
+  uuid@9.0.1:
+    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
 
   vary@1.1.2:
@@ -5620,6 +5643,18 @@ snapshots:
   '@floating-ui/utils@0.2.10': {}
 
   '@google/generative-ai@0.24.1': {}
+
+  '@humeai/voice-react@0.2.9(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+    dependencies:
+      date-fns: 3.6.0
+      hume: 0.15.6
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
+      type-fest: 4.41.0
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   '@img/sharp-darwin-arm64@0.34.3':
     optionalDependencies:
@@ -7664,6 +7699,8 @@ snapshots:
 
   date-fns-jalali@4.1.0-0: {}
 
+  date-fns@3.6.0: {}
+
   date-fns@4.1.0: {}
 
   dateformat@4.6.3: {}
@@ -8133,6 +8170,15 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
+
+  hume@0.15.6:
+    dependencies:
+      uuid: 9.0.1
+      ws: 8.18.3
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   iconv-lite@0.4.24:
     dependencies:
@@ -9185,6 +9231,8 @@ snapshots:
   utils-merge@1.0.1: {}
 
   uuid@11.1.0: {}
+
+  uuid@9.0.1: {}
 
   vary@1.1.2: {}
 

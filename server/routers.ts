@@ -13,6 +13,7 @@ import { generateChatResponse, generateNSFWPhotoPrompt } from "./aiChat";
 import { canAccessFeature } from "../shared/subscriptionTiers";
 import { generateAvatarVoice, listHumeVoices, getVoiceProfile } from "./humeVoice";
 import { generateTalkingVideo, getVideoStatus } from "./heygenVideo";
+import { generateHumeAccessToken } from "./humeAuth";
 import fs from "fs/promises";
 
 export const appRouter = router({
@@ -26,6 +27,14 @@ export const appRouter = router({
       return {
         success: true,
       } as const;
+    }),
+  }),
+
+  // Hume EVI access token
+  evi: router({
+    getAccessToken: protectedProcedure.query(async () => {
+      const accessToken = await generateHumeAccessToken();
+      return { accessToken };
     }),
   }),
 
