@@ -10,6 +10,8 @@ import * as avatarDb from "./avatarDb";
 import * as chatDb from "./chatDb";
 import { generateChatResponse, generateNSFWPhotoPrompt } from "./aiChat";
 import { canAccessFeature } from "../shared/subscriptionTiers";
+import { generateAvatarVoice, listHumeVoices, getVoiceProfile } from "./humeVoice";
+import fs from "fs/promises";
 
 export const appRouter = router({
   system: systemRouter,
@@ -312,6 +314,59 @@ export const appRouter = router({
         await chatDb.deleteConversation(input.conversationId, ctx.user.id);
         return { success: true };
       }),
+  }),
+
+  voice: router({
+    // Generate voice for avatar message
+    generateVoice: protectedProcedure
+      .input(
+        z.object({
+          text: z.string().min(1),
+          personality: z.enum(["seductive", "playful", "professional", "sweet", "dominant"]).optional(),
+          continuationOf: z.string().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        // Check if user has premium tier for voice chat
+        const canUseVoice = canAccessFeature(ctx.user.tier, "voiceChat");
+        if (!canUseVoice) {
+          throw new Error("Upgrade to Premium to use voice chat");
+        }
+
+        const voiceProfile = getVoiceProfile(input.personality || "seductive");
+
+        const result = await generateAvatarVoice(
+          input.text,
+          voiceProfile,
+          input.continuationOf
+        );
+
+        // Upload audio to S3
+        const audioBuffer = await fs.readFile(result.audioPath);
+        const audioKey = `voice/${ctx.user.id}/${nanoid()}.wav`;
+        const { url: audioUrl } = await storagePut(audioKey, audioBuffer, "audio/wav");
+
+        return {
+          generationId: result.generationId,
+          audioUrl,
+        };
+      }),
+
+    // List available voices
+    listVoices: protectedProcedure.query(async () => {
+      return await listHumeVoices();
+    }),
+
+    // Get voice profiles
+    getProfiles: protectedProcedure.query(() => {
+      return [
+        { id: "seductive", name: "Seductive", description: "Sultry and alluring" },
+        { id: "playful", name: "Playful", description: "Fun and flirty" },
+        { id: "professional", name: "Professional", description: "Confident and polished" },
+        { id: "sweet", name: "Sweet", description: "Gentle and caring" },
+        { id: "dominant", name: "Dominant", description: "Commanding and assertive" },
+      ];
+    }),
   }),
 });
 

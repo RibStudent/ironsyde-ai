@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Loader2, Send, Image as ImageIcon, Phone, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { canAccessFeature } from "../../../shared/subscriptionTiers";
+import VoiceChat from "@/components/VoiceChat";
 
 export default function Chat() {
   const params = useParams();
@@ -183,6 +184,15 @@ export default function Chat() {
           </div>
         </div>
       </div>
+
+      {/* Voice Chat Section */}
+      {user && canAccessFeature(user.tier, "voiceChat") && conversationId && (
+        <div className="border-t border-border bg-card/50 backdrop-blur-sm">
+          <div className="container mx-auto px-4 py-4 max-w-4xl">
+            <VoiceChat conversationId={conversationId} />
+          </div>
+        </div>
+      )}
 
       {/* Input */}
       <div className="border-t border-border bg-card/50 backdrop-blur-sm sticky bottom-0">
