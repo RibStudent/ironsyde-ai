@@ -9,6 +9,7 @@ import { Loader2, Send, Image as ImageIcon, Phone, ArrowLeft } from "lucide-reac
 import { toast } from "sonner";
 import { canAccessFeature } from "../../../shared/subscriptionTiers";
 import VoiceChat from "@/components/VoiceChat";
+import { VideoAvatar } from "@/components/VideoAvatar";
 
 export default function Chat() {
   const params = useParams();
@@ -201,6 +202,21 @@ export default function Chat() {
         <div className="border-t border-pink-500/20 bg-[#0a0a14]/95 backdrop-blur-sm">
           <div className="container mx-auto px-4 py-4 max-w-3xl">
             <VoiceChat conversationId={conversationId} avatarId={avatarId} />
+          </div>
+        </div>
+      )}
+
+      {/* Video Avatar Section */}
+      {user && conversationId && conversation && conversation.length > 0 && (
+        <div className="border-t border-pink-500/20 bg-[#0a0a14]/95 backdrop-blur-sm">
+          <div className="container mx-auto px-4 py-4 max-w-3xl">
+            <VideoAvatar
+              avatarId={avatarId}
+              text={conversation[conversation.length - 1]?.content || "Hello! How can I help you today?"}
+              onVideoReady={(url) => {
+                toast.success("Your avatar is ready to talk!");
+              }}
+            />
           </div>
         </div>
       )}

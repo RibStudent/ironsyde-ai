@@ -12,6 +12,7 @@ import * as personalityDb from "./personalityDb";
 import { generateChatResponse, generateNSFWPhotoPrompt } from "./aiChat";
 import { canAccessFeature } from "../shared/subscriptionTiers";
 import { generateAvatarVoice, listHumeVoices, getVoiceProfile } from "./humeVoice";
+import { generateTalkingVideo, getVideoStatus } from "./heygenVideo";
 import fs from "fs/promises";
 
 export const appRouter = router({
@@ -368,6 +369,49 @@ export const appRouter = router({
         { id: "dominant", name: "Dominant", description: "Commanding and assertive" },
       ];
     }),
+  }),
+
+  video: router({
+    // Generate talking video from avatar
+    generateTalkingVideo: protectedProcedure
+      .input(
+        z.object({
+          avatarId: z.string(),
+          text: z.string().min(1).max(500),
+          voiceId: z.string().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        // Get avatar
+        const avatar = await avatarDb.getAvatarById(input.avatarId);
+        if (!avatar || avatar.userId !== ctx.user.id) {
+          throw new Error("Avatar not found");
+        }
+
+        // Generate talking video
+        const result = await generateTalkingVideo({
+          avatarImageUrl: avatar.imageUrl,
+          text: input.text,
+          voiceId: input.voiceId,
+          title: `Talking Avatar - ${avatar.id}`,
+        });
+
+        if (result.status === "failed") {
+          throw new Error(result.error || "Failed to generate video");
+        }
+
+        return {
+          videoId: result.videoId,
+          status: result.status,
+        };
+      }),
+
+    // Get video generation status
+    getVideoStatus: protectedProcedure
+      .input(z.object({ videoId: z.string() }))
+      .query(async ({ input }) => {
+        return await getVideoStatus(input.videoId);
+      }),
   }),
 
   personality: router({

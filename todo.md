@@ -326,3 +326,17 @@
 - [x] Add clear voice chat UI with start/stop buttons
 - [x] Test voice chat functionality end-to-end
 
+
+
+## Interactive Video Avatars (HeyGen)
+
+- [ ] Test HeyGen MCP server connection
+- [ ] Create video avatar generation backend endpoint
+- [ ] Build video player component for avatar responses
+- [ ] Integrate video avatars into chat interface
+- [ ] Add lip-sync video generation for text responses
+- [ ] Implement video avatar with movements and expressions
+- [ ] Add video caching to avoid regenerating same responses
+- [ ] Create seamless video playback experience
+- [ ] Test end-to-end video conversation flow
+
