@@ -1,4 +1,4 @@
-import { mysqlEnum, mysqlTable, text, timestamp, varchar, int, boolean } from "drizzle-orm/mysql-core";
+import { mysqlEnum, mysqlTable, text, timestamp, varchar, int, boolean, json } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -133,4 +133,152 @@ export const voiceCalls = mysqlTable("voiceCalls", {
 
 export type VoiceCall = typeof voiceCalls.$inferSelect;
 export type InsertVoiceCall = typeof voiceCalls.$inferInsert;
+
+
+
+/**
+ * OnlyFans Integration Tables
+ */
+
+/**
+ * OnlyFans account connections
+ */
+export const onlyfansAccounts = mysqlTable("onlyfansAccounts", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  userId: varchar("userId", { length: 64 }).notNull(),
+  
+  // OnlyFans credentials (encrypted)
+  username: varchar("username", { length: 255 }).notNull(),
+  encryptedPassword: text("encryptedPassword").notNull(),
+  
+  // Session data
+  sessionCookies: json("sessionCookies"),
+  lastLoginAt: timestamp("lastLoginAt"),
+  
+  // Account info
+  profileName: varchar("profileName", { length: 255 }),
+  profileImage: text("profileImage"),
+  subscriberCount: int("subscriberCount").default(0),
+  
+  // Automation settings
+  autoResponseEnabled: boolean("autoResponseEnabled").default(true).notNull(),
+  autoContentDelivery: boolean("autoContentDelivery").default(false).notNull(),
+  responseDelay: int("responseDelay").default(30), // seconds
+  
+  // Status
+  isActive: boolean("isActive").default(true).notNull(),
+  lastSyncAt: timestamp("lastSyncAt"),
+  
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
+});
+
+export type OnlyFansAccount = typeof onlyfansAccounts.$inferSelect;
+export type InsertOnlyFansAccount = typeof onlyfansAccounts.$inferInsert;
+
+/**
+ * OnlyFans messages/conversations
+ */
+export const onlyfansMessages = mysqlTable("onlyfansMessages", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  accountId: varchar("accountId", { length: 64 }).notNull(),
+  
+  // Subscriber info
+  subscriberId: varchar("subscriberId", { length: 255 }).notNull(),
+  subscriberUsername: varchar("subscriberUsername", { length: 255 }).notNull(),
+  subscriberAvatar: text("subscriberAvatar"),
+  
+  // Message content
+  messageType: varchar("messageType", { length: 64 }).notNull(), // 'text', 'media_request', 'tip', 'ppv_purchase'
+  content: text("content"),
+  mediaUrls: json("mediaUrls"), // Array of media URLs if any
+  
+  // Direction
+  isIncoming: boolean("isIncoming").notNull(),
+  
+  // AI Response
+  aiGenerated: boolean("aiGenerated").default(false).notNull(),
+  aiModel: varchar("aiModel", { length: 128 }),
+  responseTime: int("responseTime"), // milliseconds
+  
+  // Status
+  isRead: boolean("isRead").default(false).notNull(),
+  needsManualReview: boolean("needsManualReview").default(false).notNull(),
+  wasSent: boolean("wasSent").default(false).notNull(),
+  
+  // Metadata
+  onlyfansMessageId: varchar("onlyfansMessageId", { length: 255 }),
+  threadId: varchar("threadId", { length: 255 }),
+  
+  createdAt: timestamp("createdAt").defaultNow(),
+  sentAt: timestamp("sentAt"),
+});
+
+export type OnlyFansMessage = typeof onlyfansMessages.$inferSelect;
+export type InsertOnlyFansMessage = typeof onlyfansMessages.$inferInsert;
+
+/**
+ * Content requests from subscribers
+ */
+export const onlyfansContentRequests = mysqlTable("onlyfansContentRequests", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  accountId: varchar("accountId", { length: 64 }).notNull(),
+  messageId: varchar("messageId", { length: 64 }),
+  
+  // Subscriber
+  subscriberId: varchar("subscriberId", { length: 255 }).notNull(),
+  subscriberUsername: varchar("subscriberUsername", { length: 255 }).notNull(),
+  
+  // Request details
+  requestType: varchar("requestType", { length: 64 }).notNull(), // 'photo', 'video', 'custom'
+  requestDescription: text("requestDescription"),
+  
+  // Generated content
+  generatedAvatarId: varchar("generatedAvatarId", { length: 64 }),
+  generatedContentUrl: text("generatedContentUrl"),
+  
+  // Pricing
+  priceUsd: int("priceUsd"), // in cents
+  isPaid: boolean("isPaid").default(false).notNull(),
+  
+  // Status
+  status: varchar("status", { length: 64 }).notNull().default("pending"), // 'pending', 'generating', 'ready', 'sent', 'cancelled'
+  
+  createdAt: timestamp("createdAt").defaultNow(),
+  completedAt: timestamp("completedAt"),
+});
+
+export type OnlyFansContentRequest = typeof onlyfansContentRequests.$inferSelect;
+export type InsertOnlyFansContentRequest = typeof onlyfansContentRequests.$inferInsert;
+
+/**
+ * OnlyFans analytics
+ */
+export const onlyfansAnalytics = mysqlTable("onlyfansAnalytics", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  accountId: varchar("accountId", { length: 64 }).notNull(),
+  
+  // Date
+  date: timestamp("date").notNull(),
+  
+  // Message metrics
+  messagesReceived: int("messagesReceived").default(0),
+  messagesSent: int("messagesSent").default(0),
+  aiResponseRate: int("aiResponseRate").default(0), // percentage
+  avgResponseTime: int("avgResponseTime").default(0), // seconds
+  
+  // Revenue metrics
+  tipsReceived: int("tipsReceived").default(0), // in cents
+  ppvSales: int("ppvSales").default(0), // in cents
+  totalRevenue: int("totalRevenue").default(0), // in cents
+  
+  // Engagement
+  newSubscribers: int("newSubscribers").default(0),
+  activeConversations: int("activeConversations").default(0),
+  
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type OnlyFansAnalytics = typeof onlyfansAnalytics.$inferSelect;
+export type InsertOnlyFansAnalytics = typeof onlyfansAnalytics.$inferInsert;
 
