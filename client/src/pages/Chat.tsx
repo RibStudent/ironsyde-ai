@@ -107,21 +107,26 @@ export default function Chat() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="border-b border-pink-500/20 bg-[#0a0a14]/95 backdrop-blur-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/gallery">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="hover:bg-pink-500/10">
                 <ArrowLeft className="h-5 w-5" />
               </Button>
             </Link>
-            <div>
-              <h1 className="text-xl font-bold">Chat with Avatar</h1>
-              <p className="text-sm text-muted-foreground">
-                {user?.tier === "free" && "Upgrade to request photos"}
-                {user?.tier === "standard" && "Standard - Photo requests enabled"}
-                {user?.tier === "premium" && "Premium - All features enabled"}
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center text-white font-bold">
+                AI
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-white">Your Avatar</h1>
+                <p className="text-xs text-gray-400">
+                  {user?.tier === "free" && "💬 Free tier - Upgrade for photos"}
+                  {user?.tier === "standard" && "📸 Photo requests enabled"}
+                  {user?.tier === "premium" && "⭐ Premium - All features"}
+                </p>
+              </div>
             </div>
           </div>
           <div className="flex gap-2">
@@ -136,37 +141,43 @@ export default function Chat() {
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="container mx-auto px-4 py-6 max-w-4xl">
+      <div className="flex-1 overflow-y-auto bg-[#0a0a14]">
+        <div className="container mx-auto px-4 py-6 max-w-3xl">
           <div className="space-y-4">
             {messages.length === 0 && (
-              <div className="text-center text-muted-foreground py-12">
-                <p>Start a conversation with your avatar!</p>
+              <div className="text-center py-20">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                  <span className="text-3xl">💬</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Start Chatting!</h3>
+                <p className="text-gray-400">Your avatar is ready to talk. Say hi!</p>
               </div>
             )}
 
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in slide-in-from-bottom-2`}
               >
                 <div
-                  className={`max-w-[70%] rounded-2xl px-4 py-3 ${
+                  className={`max-w-[75%] rounded-2xl px-5 py-3 shadow-lg ${
                     msg.role === "user"
-                      ? "bg-gradient-to-r from-pink-500 to-pink-600 text-white"
-                      : "bg-card border border-border"
+                      ? "bg-gradient-to-r from-pink-600 to-pink-600 text-white"
+                      : "bg-gradient-to-br from-pink-900/30 to-pink-900/20 border border-pink-500/20 text-white"
                   }`}
                 >
                   {msg.imageUrl && (
                     <img
                       src={msg.imageUrl}
                       alt="Generated photo"
-                      className="rounded-lg mb-2 max-w-full"
+                      className="rounded-xl mb-3 max-w-full shadow-xl"
                     />
                   )}
-                  <p className="text-sm">{msg.content}</p>
-                  <p className="text-xs opacity-70 mt-1">
-                    {new Date(msg.createdAt!).toLocaleTimeString()}
+                  <p className="text-sm leading-relaxed">{msg.content}</p>
+                  <p className={`text-xs mt-2 ${
+                    msg.role === "user" ? "text-pink-100" : "text-gray-400"
+                  }`}>
+                    {new Date(msg.createdAt!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
               </div>

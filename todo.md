@@ -302,3 +302,17 @@
 - [ ] Add phone call capabilities (SIP)
 - [ ] Deploy LiveKit agent to LiveKit Cloud
 
+
+
+## Chat UX Improvements
+
+- [x] Add prominent "Chat Now" button on each avatar in gallery
+- [ ] Create quick chat modal/drawer that opens instantly
+- [x] Add avatar preview in chat header
+- [x] Improve chat message styling and readability
+- [x] Add typing indicators
+- [x] Add quick action buttons (request photo, voice call)
+- [ ] Create chat history sidebar for easy conversation switching
+- [x] Add keyboard shortcuts (Enter to send, Esc to close)
+- [x] Improve mobile chat experience
+

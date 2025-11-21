@@ -176,13 +176,22 @@ export default function Gallery() {
                   </div>
                 </div>
                 <div className="p-4">
-                  <p className="text-sm text-gray-300 line-clamp-2 mb-2">{avatar.prompt}</p>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                  <p className="text-sm text-gray-300 line-clamp-2 mb-3">{avatar.prompt}</p>
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
                     <span>{avatar.model}</span>
                     <span>
                       {avatar.width}×{avatar.height}
                     </span>
                   </div>
+                  <Button
+                    asChild
+                    className="w-full bg-gradient-to-r from-pink-600 to-pink-600 hover:from-pink-700 hover:to-pink-700"
+                  >
+                    <Link href={`/chat/${avatar.id}`}>
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Chat Now
+                    </Link>
+                  </Button>
                 </div>
               </Card>
             ))}
