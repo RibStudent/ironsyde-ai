@@ -28,16 +28,27 @@ export class OnlyFansBrowser {
 
   /**
    * Initialize browser with stealth mode
+   * Note: For Docker environments, set PUPPETEER_DISABLE_SANDBOX=true
    */
   async init(): Promise<void> {
+    const args = [
+      "--disable-blink-features=AutomationControlled",
+      "--disable-gpu",
+      "--disable-dev-shm-usage",
+    ];
+
+    // Only disable sandbox if explicitly required (e.g., in Docker)
+    // This is a security risk and should be avoided when possible
+    if (process.env.PUPPETEER_DISABLE_SANDBOX === "true") {
+      console.warn(
+        "[Security Warning] Running Puppeteer without sandbox. Only use in trusted environments."
+      );
+      args.push("--no-sandbox", "--disable-setuid-sandbox");
+    }
+
     this.browser = await puppeteerExtra.launch({
       headless: true, // Set to false for debugging
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-blink-features=AutomationControlled",
-        "--disable-features=IsolateOrigins,site-per-process",
-      ],
+      args,
     });
 
     this.page = await this.browser.newPage();

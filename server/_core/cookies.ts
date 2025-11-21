@@ -24,25 +24,32 @@ function isSecureRequest(req: Request) {
 export function getSessionCookieOptions(
   req: Request
 ): Pick<CookieOptions, "domain" | "httpOnly" | "path" | "sameSite" | "secure"> {
-  // const hostname = req.hostname;
-  // const shouldSetDomain =
-  //   hostname &&
-  //   !LOCAL_HOSTS.has(hostname) &&
-  //   !isIpAddress(hostname) &&
-  //   hostname !== "127.0.0.1" &&
-  //   hostname !== "::1";
+  const hostname = req.hostname;
+  const shouldSetDomain =
+    hostname &&
+    !LOCAL_HOSTS.has(hostname) &&
+    !isIpAddress(hostname) &&
+    hostname !== "127.0.0.1" &&
+    hostname !== "::1";
 
-  // const domain =
-  //   shouldSetDomain && !hostname.startsWith(".")
-  //     ? `.${hostname}`
-  //     : shouldSetDomain
-  //       ? hostname
-  //       : undefined;
+  const domain =
+    shouldSetDomain && !hostname.startsWith(".")
+      ? `.${hostname}`
+      : shouldSetDomain
+        ? hostname
+        : undefined;
+
+  const isSecure = isSecureRequest(req);
+  const isProduction = process.env.NODE_ENV === "production";
 
   return {
+    domain,
     httpOnly: true,
     path: "/",
-    sameSite: "none",
-    secure: isSecureRequest(req),
+    // Use 'lax' for better security - allows same-site requests and top-level navigation
+    // Change to 'strict' for maximum security if frontend and backend are on same domain
+    sameSite: "lax",
+    // In production, always require HTTPS; in dev, allow HTTP for localhost
+    secure: isProduction ? true : isSecure,
   };
 }

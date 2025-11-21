@@ -1,9 +1,9 @@
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { promisify } from "util";
 import fs from "fs/promises";
 import path from "path";
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 interface GenerateVideoParams {
   avatarImageUrl: string;
@@ -35,23 +35,29 @@ export async function generateTalkingVideo(
     
     const defaultAvatarId = "Anna_public_3_20240108"; // Default female avatar
     
-    const input = JSON.stringify({
+    const input = {
       avatar_id: defaultAvatarId,
       input_text: text,
       voice_id: voiceId,
       title: title || `Avatar Video - ${Date.now()}`,
-    });
+    };
 
     // Call HeyGen MCP to generate video
-    const { stdout, stderr } = await execAsync(
-      `manus-mcp-cli tool call generate_avatar_video --server heygen --input '${input.replace(/'/g, "'\\''")}'`
-    );
+    const { stdout, stderr } = await execFileAsync("manus-mcp-cli", [
+      "tool",
+      "call",
+      "generate_avatar_video",
+      "--server",
+      "heygen",
+      "--input",
+      JSON.stringify(input),
+    ]);
 
     if (stderr) {
       console.error("HeyGen generation stderr:", stderr);
     }
 
-    const result = JSON.parse(stdout);
+    const result = stdout;
     
     // Parse the MCP result
     const lines = result.split("\n");
@@ -100,11 +106,17 @@ export async function getVideoStatus(
   videoId: string
 ): Promise<VideoGenerationResult> {
   try {
-    const input = JSON.stringify({ video_id: videoId });
-    
-    const { stdout, stderr } = await execAsync(
-      `manus-mcp-cli tool call get_avatar_video_status --server heygen --input '${input.replace(/'/g, "'\\''")}'`
-    );
+    const input = { video_id: videoId };
+
+    const { stdout, stderr } = await execFileAsync("manus-mcp-cli", [
+      "tool",
+      "call",
+      "get_avatar_video_status",
+      "--server",
+      "heygen",
+      "--input",
+      JSON.stringify(input),
+    ]);
 
     if (stderr) {
       console.error("HeyGen status check stderr:", stderr);
@@ -153,9 +165,15 @@ export async function getVideoStatus(
  */
 export async function getAvailableVoices(): Promise<any[]> {
   try {
-    const { stdout } = await execAsync(
-      `manus-mcp-cli tool call get_voices --server heygen --input '{}'`
-    );
+    const { stdout } = await execFileAsync("manus-mcp-cli", [
+      "tool",
+      "call",
+      "get_voices",
+      "--server",
+      "heygen",
+      "--input",
+      "{}",
+    ]);
 
     const lines = stdout.split("\n");
     let jsonResult: any = null;
