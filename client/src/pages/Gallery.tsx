@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { Sparkles, Trash2, Download, Plus } from "lucide-react";
+import { Sparkles, Trash2, Download, Plus, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import {
@@ -131,6 +131,14 @@ export default function Gallery() {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <Link href={`/chat/${avatar.id}`}>
+                      <Button
+                        size="sm"
+                        className="bg-gradient-to-r from-pink-600 to-pink-600"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                      </Button>
+                    </Link>
                     <Button
                       size="sm"
                       variant="outline"

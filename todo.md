@@ -129,3 +129,44 @@
 - [x] Switch to SeeDream-4 model for more realistic generation
 - [x] Test SeeDream-4 model
 
+
+
+## Interactive Avatar Chat System
+
+### Subscription Tiers
+- [x] Define subscription tiers (Free, Standard, Premium)
+- [x] Create subscription database schema
+- [x] Implement tier-based feature access control
+
+### Chat System
+- [x] Create chat database schema (conversations, messages)
+- [x] Build avatar selection and chat initiation flow
+- [x] Implement AI chatbot integration (Manus Forge API)
+- [x] Create chat UI with message history
+- [x] Add avatar personality/character system
+- [x] Store conversation context and history
+
+### NSFW Photo Generation
+- [x] Add NSFW photo request feature (Standard+ tier)
+- [x] Implement on-demand avatar photo generation in chat
+- [x] Add content filtering and safety controls
+- [x] Track photo generation usage per tier
+
+### Twilio Voice Chat (Premium Tier)
+- [ ] Integrate Twilio API for voice calls
+- [ ] Implement text-to-speech for avatar responses
+- [ ] Add speech-to-text for user input
+- [ ] Create voice chat UI controls
+- [ ] Handle call management and billing
+
+### UI/UX
+- [ ] Add "Chat with Avatar" button on avatar cards
+- [ ] Create chat interface page
+- [ ] Add subscription upgrade prompts
+- [ ] Display tier-based feature locks
+
+
+
+## Deployment
+- [ ] Push project to GitHub repository
+

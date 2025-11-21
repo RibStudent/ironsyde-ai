@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `tier` enum('free','standard','premium') DEFAULT 'free' NOT NULL;

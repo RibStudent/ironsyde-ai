@@ -7,6 +7,9 @@ import { nanoid } from "nanoid";
 import { generateAvatar } from "./replicate";
 import { storagePut } from "./storage";
 import * as avatarDb from "./avatarDb";
+import * as chatDb from "./chatDb";
+import { generateChatResponse, generateNSFWPhotoPrompt } from "./aiChat";
+import { canAccessFeature } from "../shared/subscriptionTiers";
 
 export const appRouter = router({
   system: systemRouter,
@@ -141,6 +144,174 @@ export const appRouter = router({
     history: protectedProcedure.query(async ({ ctx }) => {
       return await avatarDb.getUserGenerationHistory(ctx.user.id);
     }),
+  }),
+
+  chat: router({
+    // Create a new conversation
+    createConversation: protectedProcedure
+      .input(
+        z.object({
+          avatarId: z.string(),
+          personality: z.object({
+            name: z.string().optional(),
+            traits: z.array(z.string()),
+            background: z.string().optional(),
+            style: z.string().optional(),
+          }).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const conversationId = nanoid();
+        const avatar = await avatarDb.getAvatarById(input.avatarId);
+        
+        if (!avatar || avatar.userId !== ctx.user.id) {
+          throw new Error("Avatar not found");
+        }
+
+        await chatDb.createConversation({
+          id: conversationId,
+          userId: ctx.user.id,
+          avatarId: input.avatarId,
+          title: `Chat with ${input.personality?.name || "Avatar"}`,
+          avatarPersonality: input.personality ? JSON.stringify(input.personality) : null,
+        });
+
+        return { conversationId };
+      }),
+
+    // Get user's conversations
+    listConversations: protectedProcedure.query(async ({ ctx }) => {
+      return await chatDb.getUserConversations(ctx.user.id);
+    }),
+
+    // Get conversation messages
+    getMessages: protectedProcedure
+      .input(z.object({ conversationId: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const conversation = await chatDb.getConversationById(input.conversationId);
+        if (!conversation || conversation.userId !== ctx.user.id) {
+          throw new Error("Conversation not found");
+        }
+        return await chatDb.getConversationMessages(input.conversationId);
+      }),
+
+    // Send a message
+    sendMessage: protectedProcedure
+      .input(
+        z.object({
+          conversationId: z.string(),
+          content: z.string().min(1),
+          requestPhoto: z.boolean().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const conversation = await chatDb.getConversationById(input.conversationId);
+        if (!conversation || conversation.userId !== ctx.user.id) {
+          throw new Error("Conversation not found");
+        }
+
+        // Create user message
+        const userMessageId = nanoid();
+        await chatDb.createMessage({
+          id: userMessageId,
+          conversationId: input.conversationId,
+          role: "user",
+          content: input.content,
+        });
+
+        // Handle NSFW photo request
+        if (input.requestPhoto) {
+          const canRequestPhotos = canAccessFeature(ctx.user.tier, "nsfwPhotoRequests");
+          if (!canRequestPhotos) {
+            throw new Error("Upgrade to Standard or Premium to request photos");
+          }
+
+          // Check credits
+          const credits = await avatarDb.getUserCredits(ctx.user.id);
+          if (credits < 1) {
+            throw new Error("Insufficient credits");
+          }
+
+          // Get conversation history
+          const messages = await chatDb.getConversationMessages(input.conversationId, 10);
+          const chatHistory = messages.reverse().map((m) => ({
+            role: m.role,
+            content: m.content,
+          }));
+
+          // Generate photo prompt
+          const photoPrompt = await generateNSFWPhotoPrompt(chatHistory, input.content);
+
+          // Generate image
+          const result = await generateAvatar({
+            prompt: photoPrompt,
+            model: "seedream-4",
+            width: 1024,
+            height: 1536,
+          });
+
+          // Download and upload to S3
+          const imageResponse = await fetch(result.imageUrl);
+          const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+          const imageKey = `chat/${ctx.user.id}/${nanoid()}.png`;
+          const { url: imageUrl } = await storagePut(imageKey, imageBuffer, "image/png");
+
+          // Deduct credits
+          await avatarDb.deductCredits(ctx.user.id, 1);
+
+          // Create assistant message with photo
+          const assistantMessageId = nanoid();
+          await chatDb.createMessage({
+            id: assistantMessageId,
+            conversationId: input.conversationId,
+            role: "assistant",
+            content: "Here's a photo for you 😘",
+            imageUrl,
+          });
+
+          return {
+            success: true,
+            messageId: assistantMessageId,
+            imageUrl,
+          };
+        }
+
+        // Generate AI text response
+        const messages = await chatDb.getConversationMessages(input.conversationId, 20);
+        const chatHistory = messages.reverse().map((m) => ({
+          role: m.role,
+          content: m.content,
+        }));
+
+        const personality = conversation.avatarPersonality
+          ? JSON.parse(conversation.avatarPersonality)
+          : undefined;
+
+        const aiResponse = await generateChatResponse(chatHistory, personality);
+
+        // Create assistant message
+        const assistantMessageId = nanoid();
+        await chatDb.createMessage({
+          id: assistantMessageId,
+          conversationId: input.conversationId,
+          role: "assistant",
+          content: aiResponse,
+        });
+
+        return {
+          success: true,
+          messageId: assistantMessageId,
+          content: aiResponse,
+        };
+      }),
+
+    // Delete conversation
+    deleteConversation: protectedProcedure
+      .input(z.object({ conversationId: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        await chatDb.deleteConversation(input.conversationId, ctx.user.id);
+        return { success: true };
+      }),
   }),
 });
 

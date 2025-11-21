@@ -15,6 +15,20 @@
       "when": 1763691260033,
       "tag": "0001_hesitant_lizard",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1763693831814,
+      "tag": "0002_even_tenebrous",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1763693853977,
+      "tag": "0003_shiny_korg",
+      "breakpoints": true
     }
   ]
 }
