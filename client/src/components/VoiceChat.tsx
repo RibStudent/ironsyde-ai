@@ -7,22 +7,30 @@ import { toast } from "sonner";
 
 interface VoiceChatProps {
   conversationId: string;
-  onVoiceMessage?: (text: string, audioUrl: string) => void;
+  avatarId?: string;
 }
 
 type VoicePersonality = "seductive" | "playful" | "professional" | "sweet" | "dominant";
 
-export default function VoiceChat({ conversationId, onVoiceMessage }: VoiceChatProps) {
+const VOICE_PERSONALITIES = [
+  { id: "seductive", name: "Seductive", description: "Sultry, alluring voice with a teasing tone" },
+  { id: "playful", name: "Playful", description: "Fun, energetic voice with a cheerful attitude" },
+  { id: "professional", name: "Professional", description: "Polished, confident voice with clear articulation" },
+  { id: "sweet", name: "Sweet", description: "Warm, gentle voice with a caring tone" },
+  { id: "dominant", name: "Dominant", description: "Commanding, assertive voice with authority" },
+];
+
+export default function VoiceChat({ conversationId, avatarId }: VoiceChatProps) {
   const [isListening, setIsListening] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [selectedPersonality, setSelectedPersonality] = useState<VoicePersonality>("seductive");
-  const [lastGenerationId, setLastGenerationId] = useState<string | undefined>();
+  const [transcript, setTranscript] = useState("");
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const recognitionRef = useRef<any>(null);
 
-  const { data: voiceProfiles } = trpc.voice.getProfiles.useQuery();
+  const sendMessageMutation = trpc.chat.sendMessage.useMutation();
   const generateVoiceMutation = trpc.voice.generateVoice.useMutation();
 
   // Initialize speech recognition
@@ -34,14 +42,15 @@ export default function VoiceChat({ conversationId, onVoiceMessage }: VoiceChatP
       recognitionRef.current.interimResults = false;
 
       recognitionRef.current.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        handleUserSpeech(transcript);
+        const userTranscript = event.results[0][0].transcript;
+        setTranscript(userTranscript);
+        handleUserSpeech(userTranscript);
       };
 
       recognitionRef.current.onerror = (event: any) => {
         console.error("Speech recognition error:", event.error);
         setIsListening(false);
-        toast.error("Speech recognition error");
+        toast.error("Speech recognition error. Please try again.");
       };
 
       recognitionRef.current.onend = () => {
@@ -58,13 +67,14 @@ export default function VoiceChat({ conversationId, onVoiceMessage }: VoiceChatP
 
   const startListening = () => {
     if (!recognitionRef.current) {
-      toast.error("Speech recognition not supported in this browser");
+      toast.error("Speech recognition not supported. Please use Chrome or Edge browser.");
       return;
     }
 
     try {
       recognitionRef.current.start();
       setIsListening(true);
+      toast.info("Listening... Speak now!");
     } catch (error) {
       console.error("Error starting speech recognition:", error);
       toast.error("Failed to start listening");
@@ -78,38 +88,45 @@ export default function VoiceChat({ conversationId, onVoiceMessage }: VoiceChatP
     setIsListening(false);
   };
 
-  const handleUserSpeech = async (transcript: string) => {
-    console.log("User said:", transcript);
+  const handleUserSpeech = async (userText: string) => {
+    console.log("User said:", userText);
+    setIsGenerating(true);
     
-    // TODO: Send message to chat API and get response
-    // For now, we'll just generate a voice response
-    await generateVoiceResponse("Thank you for your message. I'm here to chat with you.");
+    try {
+      // Send user message to chat and get AI response
+      const response = await sendMessageMutation.mutateAsync({
+        conversationId,
+        content: userText,
+        requestPhoto: false,
+      });
+
+      // Get the AI's text response (last message)
+      const aiResponse = response.content || "I'm here to chat with you!";
+
+      // Generate voice for the AI response
+      await generateVoiceResponse(aiResponse);
+    } catch (error: any) {
+      console.error("Chat error:", error);
+      toast.error("Failed to process your message");
+      setIsGenerating(false);
+    }
   };
 
   const generateVoiceResponse = async (text: string) => {
-    setIsGenerating(true);
-
     try {
       const result = await generateVoiceMutation.mutateAsync({
         text,
         personality: selectedPersonality,
-        continuationOf: lastGenerationId,
       });
 
-      setLastGenerationId(result.generationId);
-
       // Play the audio
-      if (audioRef.current) {
+      if (result.audioUrl && audioRef.current) {
         audioRef.current.src = result.audioUrl;
-        audioRef.current.play();
+        await audioRef.current.play();
         setIsSpeaking(true);
       }
 
-      if (onVoiceMessage) {
-        onVoiceMessage(text, result.audioUrl);
-      }
-
-      toast.success("Voice generated!");
+      toast.success("Avatar responded!");
     } catch (error: any) {
       console.error("Voice generation error:", error);
       toast.error(error.message || "Failed to generate voice");
@@ -131,37 +148,48 @@ export default function VoiceChat({ conversationId, onVoiceMessage }: VoiceChatP
   };
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-pink-500/10 to-purple-500/10 border-pink-500/20">
+    <Card className="p-6 bg-gradient-to-br from-pink-900/30 to-pink-900/20 border-pink-500/20">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-white">Voice Chat</h3>
-          <span className="text-xs text-gray-400 bg-purple-500/20 px-2 py-1 rounded">
-            Premium Feature
+          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+            🎤 Voice Chat
+          </h3>
+          <span className="text-xs text-pink-300 bg-pink-500/20 px-3 py-1 rounded-full">
+            AI Powered
           </span>
         </div>
 
         {/* Voice Personality Selector */}
         <div>
-          <label className="text-sm text-gray-300 mb-2 block">Voice Personality</label>
+          <label className="text-sm text-gray-300 mb-2 block font-medium">Voice Personality</label>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-            {voiceProfiles?.map((profile) => (
+            {VOICE_PERSONALITIES.map((profile) => (
               <button
                 key={profile.id}
                 onClick={() => setSelectedPersonality(profile.id as VoicePersonality)}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   selectedPersonality === profile.id
-                    ? "bg-pink-500 text-white"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                    ? "bg-gradient-to-r from-pink-600 to-pink-600 text-white shadow-lg"
+                    : "bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 border border-gray-700"
                 }`}
               >
                 {profile.name}
               </button>
             ))}
           </div>
-          <p className="text-xs text-gray-400 mt-1">
-            {voiceProfiles?.find((p) => p.id === selectedPersonality)?.description}
+          <p className="text-xs text-gray-400 mt-2">
+            {VOICE_PERSONALITIES.find((p) => p.id === selectedPersonality)?.description}
           </p>
         </div>
+
+        {/* Transcript Display */}
+        {transcript && (
+          <div className="bg-black/30 rounded-lg p-3 border border-pink-500/20">
+            <p className="text-sm text-gray-300">
+              <span className="text-pink-400 font-semibold">You said:</span> {transcript}
+            </p>
+          </div>
+        )}
 
         {/* Voice Controls */}
         <div className="flex gap-3">
@@ -169,10 +197,11 @@ export default function VoiceChat({ conversationId, onVoiceMessage }: VoiceChatP
           <Button
             onClick={isListening ? stopListening : startListening}
             disabled={isGenerating || isSpeaking}
-            className={`flex-1 ${
+            size="lg"
+            className={`flex-1 text-base font-semibold ${
               isListening
-                ? "bg-red-500 hover:bg-red-600"
-                : "bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                ? "bg-red-500 hover:bg-red-600 animate-pulse"
+                : "bg-gradient-to-r from-pink-600 to-pink-600 hover:from-pink-700 hover:to-pink-700"
             }`}
           >
             {isListening ? (
@@ -189,39 +218,37 @@ export default function VoiceChat({ conversationId, onVoiceMessage }: VoiceChatP
           </Button>
 
           {/* Speaker Button */}
-          <Button
-            onClick={stopSpeaking}
-            disabled={!isSpeaking}
-            variant="outline"
-            className="px-4"
-          >
-            {isSpeaking ? (
+          {isSpeaking && (
+            <Button
+              onClick={stopSpeaking}
+              variant="outline"
+              size="lg"
+              className="px-6 border-pink-500/30 hover:bg-pink-500/10"
+            >
               <VolumeX className="w-5 h-5" />
-            ) : (
-              <Volume2 className="w-5 h-5" />
-            )}
-          </Button>
+            </Button>
+          )}
         </div>
 
         {/* Status Indicator */}
         {(isListening || isGenerating || isSpeaking) && (
-          <div className="flex items-center justify-center gap-2 text-sm">
+          <div className="flex items-center justify-center gap-2 text-sm py-2 bg-black/20 rounded-lg">
             {isListening && (
               <>
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                <span className="text-gray-300">Listening...</span>
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                <span className="text-white font-medium">Listening to you...</span>
               </>
             )}
             {isGenerating && (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-pink-500" />
-                <span className="text-gray-300">Generating voice...</span>
+                <Loader2 className="w-4 h-4 animate-spin text-pink-400" />
+                <span className="text-white font-medium">Generating voice response...</span>
               </>
             )}
             {isSpeaking && (
               <>
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-gray-300">Avatar speaking...</span>
+                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-white font-medium">Avatar speaking...</span>
               </>
             )}
           </div>
@@ -235,9 +262,11 @@ export default function VoiceChat({ conversationId, onVoiceMessage }: VoiceChatP
         />
 
         {/* Info */}
-        <p className="text-xs text-gray-400 text-center">
-          Click the microphone to speak, and your avatar will respond with voice
-        </p>
+        <div className="bg-pink-500/10 rounded-lg p-3 border border-pink-500/20">
+          <p className="text-xs text-gray-300 text-center">
+            💡 <strong>Tip:</strong> Click "Start Talking", speak your message, and your avatar will respond with voice!
+          </p>
+        </div>
       </div>
     </Card>
   );

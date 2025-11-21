@@ -316,3 +316,13 @@
 - [x] Add keyboard shortcuts (Enter to send, Esc to close)
 - [x] Improve mobile chat experience
 
+
+
+## Enable Voice Chat
+
+- [x] Test Hume MCP server connection
+- [x] Fix VoiceChat component integration
+- [x] Make voice chat accessible to all users (not just premium)
+- [x] Add clear voice chat UI with start/stop buttons
+- [x] Test voice chat functionality end-to-end
+
