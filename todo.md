@@ -84,3 +84,9 @@
 - [x] Implement profile navigation in header
 - [x] Add route for profile page
 
+
+
+## Bug Fixes
+
+- [x] Fix login button not working on homepage
+

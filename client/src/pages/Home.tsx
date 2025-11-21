@@ -38,12 +38,25 @@ export default function Home() {
           <nav className="hidden md:flex items-center gap-8">
             <a href="#features" className="hover:text-pink-400 transition-colors">Features</a>
             <a href="#pricing" className="hover:text-pink-400 transition-colors">Pricing</a>
-            <Button variant="outline" className="border-white/20 hover:bg-white/10">
-              Log In
-            </Button>
-            <Button className="bg-gradient-to-r from-pink-600 to-pink-600 hover:from-pink-700 hover:to-pink-700">
-              Start Free Trial
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <Button asChild variant="outline" className="border-white/20 hover:bg-white/10">
+                  <a href="/profile">Profile</a>
+                </Button>
+                <Button asChild className="bg-gradient-to-r from-pink-600 to-pink-600 hover:from-pink-700 hover:to-pink-700">
+                  <a href="/generate">Generate Avatar</a>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button onClick={() => window.location.href = getLoginUrl()} variant="outline" className="border-white/20 hover:bg-white/10">
+                  Log In
+                </Button>
+                <Button onClick={() => window.location.href = getLoginUrl()} className="bg-gradient-to-r from-pink-600 to-pink-600 hover:from-pink-700 hover:to-pink-700">
+                  Start Free Trial
+                </Button>
+              </>
+            )}
           </nav>
         </div>
       </header>
