@@ -140,10 +140,22 @@ function EVIChatInner({ avatarId, avatarName, personality }: EVIChatProps) {
 }
 
 export default function EVIChat(props: EVIChatProps) {
-  return (
-    <VoiceProvider>
-      <EVIChatInner {...props} />
-    </VoiceProvider>
-  );
+  try {
+    return (
+      <VoiceProvider>
+        <EVIChatInner {...props} />
+      </VoiceProvider>
+    );
+  } catch (error) {
+    console.error("[EVI] Failed to initialize:", error);
+    return (
+      <Card className="p-4">
+        <div className="text-center text-muted-foreground">
+          <p>Voice chat is temporarily unavailable.</p>
+          <p className="text-sm mt-2">Please try refreshing the page.</p>
+        </div>
+      </Card>
+    );
+  }
 }
 

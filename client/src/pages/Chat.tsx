@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { useParams, useLocation, Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Loader2, Send, Image as ImageIcon, Phone, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { canAccessFeature } from "../../../shared/subscriptionTiers";
-import EVIChat from "@/components/EVIChat";
+const EVIChat = lazy(() => import("@/components/EVIChat"));
 import { VideoAvatar } from "@/components/VideoAvatar";
 
 export default function Chat() {
@@ -201,11 +201,13 @@ export default function Chat() {
       {user && conversationId && (
         <div className="border-t border-pink-500/20 bg-[#0a0a14]/95 backdrop-blur-sm">
           <div className="container mx-auto px-4 py-4 max-w-3xl">
-            <EVIChat 
-              avatarId={avatarId} 
-              avatarName={conversation?.avatar?.name || "Your Avatar"}
-              personality="seductive"
-            />
+            <Suspense fallback={<div className="text-center p-4">Loading voice chat...</div>}>
+              <EVIChat 
+                avatarId={avatarId} 
+                avatarName={conversation?.avatar?.name || "Your Avatar"}
+                personality="seductive"
+              />
+            </Suspense>
           </div>
         </div>
       )}
