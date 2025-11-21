@@ -21,3 +21,34 @@
 - [x] Style buttons with purple gradient
 - [x] Add hover effects and animations
 
+
+
+## Rebranding Updates
+
+- [ ] Change brand name to IronSide-inspired name
+- [ ] Update color scheme to baby pink
+- [ ] Update logo and branding elements
+- [ ] Update all gradient colors to pink tones
+- [ ] Update button colors to pink
+- [ ] Update accent colors throughout the site
+
+
+
+## Backend & Avatar Generation Features
+
+- [x] Upgrade project to web-db-user (backend + database + authentication)
+- [x] Create database schema for avatars
+- [x] Set up user authentication system
+- [x] Integrate NSFW-capable AI image generation API (Replicate with Flux/SDXL)
+- [x] Create avatar generation endpoint
+- [x] Build avatar gallery/management page
+- [x] Add avatar creation form/interface
+- [x] Implement avatar storage (S3)
+- [x] Create user dashboard to view generated avatars
+- [x] Add avatar download functionality
+- [ ] Implement avatar editing/regeneration
+- [x] Add usage tracking and credits system
+- [x] Implement NSFW content generation with safety controls
+- [ ] Add content moderation and legal compliance features
+- [x] Create API endpoints for avatar CRUD operations
+
