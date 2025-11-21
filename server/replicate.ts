@@ -13,7 +13,7 @@ export interface GenerateAvatarOptions {
   seed?: number;
   guidanceScale?: number;
   numInferenceSteps?: number;
-  model?: "flux-pro" | "flux-dev" | "sdxl";
+  model?: "flux-pro" | "flux-dev" | "sdxl" | "seedream-4";
   imageUrl?: string; // For image-to-image generation
   strength?: number; // How much to transform the input image (0-1)
 }
@@ -39,7 +39,7 @@ export async function generateAvatar(
     seed,
     guidanceScale = 7.5,
     numInferenceSteps = 30,
-    model = "flux-dev",
+    model = "seedream-4",
     imageUrl,
     strength = 0.8,
   } = options;
@@ -71,6 +71,21 @@ export async function generateAvatar(
           prompt,
           width,
           height,
+          num_outputs: numOutputs,
+          guidance_scale: guidanceScale,
+          num_inference_steps: numInferenceSteps,
+          ...(seed && { seed }),
+          ...(imageUrl && { image: imageUrl, prompt_strength: strength }),
+        },
+      });
+    } else if (model === "seedream-4") {
+      // SeeDream-4 - ByteDance's photorealistic model
+      modelVersion = "bytedance/seedream-4";
+      output = await replicate.run(modelVersion, {
+        input: {
+          prompt,
+          width: Math.max(width, 1024), // SeeDream-4 requires minimum 1024
+          height: Math.max(height, 1024),
           num_outputs: numOutputs,
           guidance_scale: guidanceScale,
           num_inference_steps: numInferenceSteps,
@@ -113,15 +128,27 @@ export async function generateAvatar(
       }
     }
 
-    // Replicate returns an array of URLs
-    const imageUrl = Array.isArray(output) ? output[0] : output;
-
-    if (typeof imageUrl !== "string") {
+    // Replicate returns an array of URLs or FileOutput objects
+    let resultImageUrl: string;
+    
+    if (Array.isArray(output)) {
+      const firstOutput = output[0];
+      // Handle FileOutput objects from Replicate
+      if (typeof firstOutput === 'string') {
+        resultImageUrl = firstOutput;
+      } else if (firstOutput && typeof firstOutput === 'object' && 'url' in firstOutput) {
+        resultImageUrl = await firstOutput.url();
+      } else {
+        resultImageUrl = String(firstOutput);
+      }
+    } else if (typeof output === 'string') {
+      resultImageUrl = output;
+    } else {
       throw new Error("Unexpected output format from Replicate");
     }
 
     return {
-      imageUrl,
+      imageUrl: resultImageUrl,
       seed,
       model: modelVersion,
     };

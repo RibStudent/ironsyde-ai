@@ -23,7 +23,7 @@ export default function Generate() {
   const { user, isAuthenticated } = useAuth();
   const [prompt, setPrompt] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("low quality, blurry, distorted, deformed, ugly");
-  const [model, setModel] = useState<"flux-pro" | "flux-dev" | "sdxl">("flux-dev");
+  const [model, setModel] = useState<"flux-pro" | "flux-dev" | "sdxl" | "seedream-4">("seedream-4");
   const [width, setWidth] = useState(1024);
   const [height, setHeight] = useState(1024);
   const [referenceImage, setReferenceImage] = useState<File | null>(null);

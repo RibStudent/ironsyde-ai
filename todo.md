@@ -90,3 +90,42 @@
 
 - [x] Fix login button not working on homepage
 
+
+
+## Social Sharing Feature
+
+- [ ] Add social sharing buttons to gallery items
+- [ ] Implement Twitter/X share functionality
+- [ ] Implement Facebook share functionality
+- [ ] Implement Reddit share functionality
+- [ ] Implement copy link to clipboard functionality
+- [ ] Add share dialog/modal component
+
+
+
+## Critical Bugs
+
+- [ ] Fix white screen when clicking login button
+
+
+
+## Testing
+
+- [x] Test image generation with Replicate API
+
+
+
+## Fixes and Improvements
+
+- [ ] Fix missing authorization header for publishing
+- [x] Switch to Stable Diffusion XL (SDXL) for more realistic images
+- [x] Test SDXL generation quality
+
+
+
+## Critical Fixes
+
+- [x] Fix imageUrl2 initialization error in replicate.ts
+- [x] Switch to SeeDream-4 model for more realistic generation
+- [x] Test SeeDream-4 model
+

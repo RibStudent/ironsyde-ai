@@ -41,7 +41,7 @@ export const appRouter = router({
           negativePrompt: z.string().optional(),
           width: z.number().min(512).max(2048).optional(),
           height: z.number().min(512).max(2048).optional(),
-          model: z.enum(["flux-pro", "flux-dev", "sdxl"]).optional(),
+          model: z.enum(["flux-pro", "flux-dev", "sdxl", "seedream-4"]).optional(),
           seed: z.number().optional(),
           referenceImageUrl: z.string().url().optional(), // For image-to-image
           strength: z.number().min(0).max(1).optional(), // Transformation strength
@@ -63,7 +63,7 @@ export const appRouter = router({
           id: historyId,
           userId,
           prompt: input.prompt,
-          model: input.model || "flux-dev",
+          model: input.model || "seedream-4",
           status: "processing",
           creditsUsed: 1,
         });
