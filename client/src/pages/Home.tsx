@@ -67,26 +67,17 @@ export default function Home() {
         </Button>
         <p className="text-sm text-gray-500 mt-4">7-day free trial</p>
         
-        {/* Mobile Mockup Placeholder */}
-        <div className="mt-16 relative">
-          <div className="flex justify-center gap-4 items-center">
-            <div className="w-64 h-[500px] bg-gradient-to-br from-pink-900/30 to-pink-900/30 rounded-3xl border-4 border-white/10 flex items-center justify-center">
-              <div className="text-center">
-                <MessageSquare className="w-16 h-16 mx-auto mb-4 text-pink-400" />
-                <p className="text-sm text-gray-400">Dashboard</p>
-              </div>
-            </div>
-            <div className="w-64 h-[500px] bg-gradient-to-br from-pink-900/30 to-pink-900/30 rounded-3xl border-4 border-white/10 flex items-center justify-center transform scale-110 z-10">
-              <div className="text-center">
-                <Users className="w-16 h-16 mx-auto mb-4 text-blue-400" />
-                <p className="text-sm text-gray-400">Analytics</p>
-              </div>
-            </div>
-            <div className="w-64 h-[500px] bg-gradient-to-br from-pink-900/30 to-pink-900/30 rounded-3xl border-4 border-white/10 flex items-center justify-center">
-              <div className="text-center">
-                <MessageSquare className="w-16 h-16 mx-auto mb-4 text-pink-400" />
-                <p className="text-sm text-gray-400">Messages</p>
-              </div>
+        {/* Hero Image */}
+        <div className="mt-16 relative max-w-2xl mx-auto">
+          <div className="relative rounded-3xl overflow-hidden border-4 border-pink-500/30 shadow-2xl shadow-pink-500/20">
+            <img 
+              src="/karlee-hero.jpg" 
+              alt="AI-Generated Avatar Example" 
+              className="w-full h-auto"
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+              <p className="text-sm text-pink-400 font-semibold">AI-Generated with IronSyde</p>
+              <p className="text-xs text-gray-300">Create stunning avatars in seconds</p>
             </div>
           </div>
         </div>

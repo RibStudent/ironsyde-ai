@@ -43,6 +43,8 @@ export const appRouter = router({
           height: z.number().min(512).max(2048).optional(),
           model: z.enum(["flux-pro", "flux-dev", "sdxl"]).optional(),
           seed: z.number().optional(),
+          referenceImageUrl: z.string().url().optional(), // For image-to-image
+          strength: z.number().min(0).max(1).optional(), // Transformation strength
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -75,6 +77,8 @@ export const appRouter = router({
             height: input.height,
             model: input.model,
             seed: input.seed,
+            imageUrl: input.referenceImageUrl,
+            strength: input.strength,
           });
 
           // Download and upload to S3

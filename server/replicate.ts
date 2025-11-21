@@ -14,6 +14,8 @@ export interface GenerateAvatarOptions {
   guidanceScale?: number;
   numInferenceSteps?: number;
   model?: "flux-pro" | "flux-dev" | "sdxl";
+  imageUrl?: string; // For image-to-image generation
+  strength?: number; // How much to transform the input image (0-1)
 }
 
 export interface GenerateAvatarResult {
@@ -38,6 +40,8 @@ export async function generateAvatar(
     guidanceScale = 7.5,
     numInferenceSteps = 30,
     model = "flux-dev",
+    imageUrl,
+    strength = 0.8,
   } = options;
 
   try {
@@ -56,6 +60,7 @@ export async function generateAvatar(
           guidance_scale: guidanceScale,
           num_inference_steps: numInferenceSteps,
           ...(seed && { seed }),
+          ...(imageUrl && { image: imageUrl, prompt_strength: strength }),
         },
       });
     } else if (model === "flux-dev") {
@@ -70,23 +75,42 @@ export async function generateAvatar(
           guidance_scale: guidanceScale,
           num_inference_steps: numInferenceSteps,
           ...(seed && { seed }),
+          ...(imageUrl && { image: imageUrl, prompt_strength: strength }),
         },
       });
     } else {
       // SDXL - fallback, also NSFW-capable
-      modelVersion = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b";
-      output = await replicate.run(modelVersion, {
-        input: {
-          prompt,
-          negative_prompt: negativePrompt,
-          width,
-          height,
-          num_outputs: numOutputs,
-          guidance_scale: guidanceScale,
-          num_inference_steps: numInferenceSteps,
-          ...(seed && { seed }),
-        },
-      });
+      if (imageUrl) {
+        // Use SDXL img2img for image-to-image
+        modelVersion = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b";
+        output = await replicate.run(modelVersion, {
+          input: {
+            image: imageUrl,
+            prompt,
+            negative_prompt: negativePrompt,
+            num_outputs: numOutputs,
+            guidance_scale: guidanceScale,
+            num_inference_steps: numInferenceSteps,
+            prompt_strength: strength,
+            ...(seed && { seed }),
+          },
+        });
+      } else {
+        // Text-to-image
+        modelVersion = "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b";
+        output = await replicate.run(modelVersion, {
+          input: {
+            prompt,
+            negative_prompt: negativePrompt,
+            width,
+            height,
+            num_outputs: numOutputs,
+            guidance_scale: guidanceScale,
+            num_inference_steps: numInferenceSteps,
+            ...(seed && { seed }),
+          },
+        });
+      }
     }
 
     // Replicate returns an array of URLs

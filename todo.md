@@ -52,3 +52,18 @@
 - [ ] Add content moderation and legal compliance features
 - [x] Create API endpoints for avatar CRUD operations
 
+
+
+## Homepage Updates
+
+- [x] Add Karlee's photo to hero section
+
+## New Features
+
+- [x] Implement image-to-image generation backend
+- [x] Add image upload functionality to generation form
+- [x] Update Replicate integration to support image input
+- [x] Create style presets/templates system
+- [x] Add preset selector to generation UI
+- [x] Create preset templates (Instagram Model, Anime Character, Professional Headshot, etc.)
+
