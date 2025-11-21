@@ -4,7 +4,7 @@ describe('Hume EVI Integration', () => {
   it('should have Hume API credentials configured', () => {
     expect(process.env.HUME_API_KEY).toBeTruthy();
     expect(process.env.HUME_SECRET_KEY).toBeTruthy();
-    expect(process.env.HUME_API_KEY).toContain('qHSDhNBL1YgHYzXuNGPzv7AusxrOqQu0C0vGbPmYORGfXgZO');
+    expect(process.env.HUME_API_KEY?.length).toBeGreaterThan(0);
   });
 
   it('should have EVI components installed', () => {

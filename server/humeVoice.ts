@@ -3,12 +3,12 @@
  * Integrates Hume AI TTS for avatar voice conversations
  */
 
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { promisify } from "util";
 import fs from "fs/promises";
 import path from "path";
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 const HUME_API_KEY = process.env.HUME_API_KEY;
 const HUME_SECRET_KEY = process.env.HUME_SECRET_KEY;
@@ -64,14 +64,20 @@ export async function generateVoice(
   };
 
   try {
-    const { stdout } = await execAsync(
-      `manus-mcp-cli tool call tts --server hume --input '${JSON.stringify(input)}'`
-    );
+    const { stdout } = await execFileAsync("manus-mcp-cli", [
+      "tool",
+      "call",
+      "tts",
+      "--server",
+      "hume",
+      "--input",
+      JSON.stringify(input),
+    ]);
 
     // Parse the text output to extract audio path
     // Format: "Wrote Audio(...) to /path/to/file.wav"
     const match = stdout.match(/Wrote Audio\(.*?\) to (.+\.wav)/);
-    
+
     if (!match || !match[1]) {
       console.error("[Hume] Unexpected output:", stdout);
       throw new Error("Failed to parse audio path from output");
@@ -118,9 +124,15 @@ export async function generateAvatarVoice(
  */
 export async function listHumeVoices(): Promise<any[]> {
   try {
-    const { stdout } = await execAsync(
-      `manus-mcp-cli tool call list_voices --server hume --input '{"provider":"HUME_AI"}'`
-    );
+    const { stdout } = await execFileAsync("manus-mcp-cli", [
+      "tool",
+      "call",
+      "list_voices",
+      "--server",
+      "hume",
+      "--input",
+      JSON.stringify({ provider: "HUME_AI" }),
+    ]);
 
     const result = JSON.parse(stdout);
     return result.content?.[0]?.voices || [];
@@ -138,9 +150,15 @@ export async function saveCustomVoice(
   generationId: string
 ): Promise<boolean> {
   try {
-    await execAsync(
-      `manus-mcp-cli tool call save_voice --server hume --input '{"name":"${name}","generationId":"${generationId}"}'`
-    );
+    await execFileAsync("manus-mcp-cli", [
+      "tool",
+      "call",
+      "save_voice",
+      "--server",
+      "hume",
+      "--input",
+      JSON.stringify({ name, generationId }),
+    ]);
 
     console.log(`[Hume] Voice saved: ${name}`);
     return true;
