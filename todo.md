@@ -340,3 +340,15 @@
 - [ ] Create seamless video playback experience
 - [ ] Test end-to-end video conversation flow
 
+
+
+## Account Management
+
+- [x] Upgrade user account to premium tier
+
+
+
+## Bug Fixes
+
+- [x] Fix voice generation JSON parsing error with Hume MCP
+

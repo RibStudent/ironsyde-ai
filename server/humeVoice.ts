@@ -68,18 +68,19 @@ export async function generateVoice(
       `manus-mcp-cli tool call tts --server hume --input '${JSON.stringify(input)}'`
     );
 
-    // Parse the output to get generationId and audio path
-    const result = JSON.parse(stdout);
+    // Parse the text output to extract audio path
+    // Format: "Wrote Audio(...) to /path/to/file.wav"
+    const match = stdout.match(/Wrote Audio\(.*?\) to (.+\.wav)/);
     
-    if (!result.content || result.content.length === 0) {
-      throw new Error("No audio generated");
+    if (!match || !match[1]) {
+      console.error("[Hume] Unexpected output:", stdout);
+      throw new Error("Failed to parse audio path from output");
     }
 
-    const content = result.content[0];
-    const generationId = content.generationId || `gen_${Date.now()}`;
-    const audioPath = content.audioPath || content.path;
+    const audioPath = match[1].trim();
+    const generationId = `gen_${Date.now()}`;
 
-    console.log(`[Hume] Voice generated: ${generationId}`);
+    console.log(`[Hume] Voice generated: ${generationId} at ${audioPath}`);
 
     return {
       generationId,

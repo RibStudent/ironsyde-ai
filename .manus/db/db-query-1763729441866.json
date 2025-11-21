@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE users SET tier = 'premium' WHERE tier != 'premium';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3wL78Xm7NKGSK7e.8805e3701da7 --database Z7niicEBQb4F9ri8QEFV84 --execute UPDATE users SET tier = 'premium' WHERE tier != 'premium';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2241
+}
