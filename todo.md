@@ -73,3 +73,14 @@
 
 - [x] Fix missing getLoginUrl import in Home.tsx
 
+
+
+## User Profile Page
+
+- [x] Create profile page component
+- [x] Display user account information
+- [x] Show credit balance and usage statistics
+- [x] Add generation history with statistics
+- [x] Implement profile navigation in header
+- [x] Add route for profile page
+

@@ -89,6 +89,9 @@ export default function Gallery() {
               <span className="text-gray-400">Credits:</span>{" "}
               <span className="text-pink-400 font-bold">{credits ?? 0}</span>
             </div>
+            <Button asChild variant="outline" className="border-white/20">
+              <Link href="/profile">Profile</Link>
+            </Button>
             <Button asChild className="bg-gradient-to-r from-pink-600 to-pink-600">
               <Link href="/generate">
                 <Plus className="w-4 h-4 mr-2" />

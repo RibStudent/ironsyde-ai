@@ -159,6 +159,9 @@ export default function Generate() {
             <Button asChild variant="outline" className="border-white/20">
               <Link href="/gallery">Gallery</Link>
             </Button>
+            <Button asChild variant="outline" className="border-white/20">
+              <Link href="/profile">Profile</Link>
+            </Button>
           </div>
         </div>
       </header>
