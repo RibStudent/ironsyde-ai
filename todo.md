@@ -261,3 +261,44 @@
 - [ ] Implement rate limiting to avoid spam detection
 - [ ] Add manual review queue for sensitive requests
 
+
+
+## Avatar Personality Builder
+
+- [x] Create personality profiles database schema
+- [ ] Add personality traits selection system
+- [ ] Build backstory/bio editor
+- [ ] Add conversation style customization
+- [ ] Implement voice characteristics selector
+- [ ] Create personality template library
+- [ ] Build personality builder UI page
+- [ ] Add personality profile management (save/edit/delete)
+- [ ] Integrate personality with chat system
+- [ ] Integrate personality with voice chat
+- [ ] Add personality preview/testing feature
+
+
+
+## Gemini AI Integration
+
+- [x] Install Google Gemini SDK
+- [x] Create Gemini service wrapper
+- [x] Use Gemini for personality-based chat responses
+- [x] Use Gemini for backstory generation
+- [x] Use Gemini for intelligent prompt enhancement
+- [x] Use Gemini for OnlyFans message suggestions
+- [x] Add Gemini-powered personality trait analysis
+
+
+
+## LiveKit Voice Agent Integration
+
+- [ ] Install LiveKit Agents SDK for Node.js
+- [ ] Create LiveKit agent server
+- [ ] Build personality-based voice agent with Gemini
+- [ ] Integrate with personality profiles
+- [ ] Add voice agent endpoints to backend
+- [ ] Create voice agent UI component
+- [ ] Add phone call capabilities (SIP)
+- [ ] Deploy LiveKit agent to LiveKit Cloud
+

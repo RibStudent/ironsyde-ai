@@ -8,6 +8,7 @@ import { generateAvatar } from "./replicate";
 import { storagePut } from "./storage";
 import * as avatarDb from "./avatarDb";
 import * as chatDb from "./chatDb";
+import * as personalityDb from "./personalityDb";
 import { generateChatResponse, generateNSFWPhotoPrompt } from "./aiChat";
 import { canAccessFeature } from "../shared/subscriptionTiers";
 import { generateAvatarVoice, listHumeVoices, getVoiceProfile } from "./humeVoice";
@@ -367,6 +368,128 @@ export const appRouter = router({
         { id: "dominant", name: "Dominant", description: "Commanding and assertive" },
       ];
     }),
+  }),
+
+  personality: router({
+    // Create personality profile
+    create: protectedProcedure
+      .input(
+        z.object({
+          avatarId: z.string().optional(),
+          name: z.string().min(1).max(255),
+          description: z.string().optional(),
+          traits: z.array(z.string()),
+          backstory: z.string().optional(),
+          occupation: z.string().optional(),
+          age: z.number().optional(),
+          location: z.string().optional(),
+          interests: z.array(z.string()).optional(),
+          conversationStyle: z.string(),
+          responseLength: z.enum(["short", "medium", "long"]).optional(),
+          emojiUsage: z.enum(["none", "minimal", "moderate", "frequent"]).optional(),
+          languageStyle: z.string().optional(),
+          voicePersonality: z.enum(["seductive", "playful", "professional", "sweet", "dominant"]).optional(),
+          voiceName: z.string().optional(),
+          flirtLevel: z.number().min(1).max(10).optional(),
+          nsfwWillingness: z.number().min(1).max(10).optional(),
+          responseSpeed: z.enum(["instant", "realistic", "slow"]).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const profileId = nanoid();
+        const profile = await personalityDb.createPersonalityProfile({
+          id: profileId,
+          userId: ctx.user.id,
+          ...input,
+        });
+        return profile;
+      }),
+
+    // Get user's personality profiles
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return await personalityDb.getUserPersonalityProfiles(ctx.user.id);
+    }),
+
+    // Get personality profile by ID
+    get: protectedProcedure
+      .input(z.object({ profileId: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const profile = await personalityDb.getPersonalityProfileById(input.profileId);
+        if (!profile || profile.userId !== ctx.user.id) {
+          throw new Error("Profile not found");
+        }
+        return profile;
+      }),
+
+    // Get profiles for specific avatar
+    getByAvatar: protectedProcedure
+      .input(z.object({ avatarId: z.string() }))
+      .query(async ({ ctx, input }) => {
+        return await personalityDb.getAvatarPersonalityProfiles(input.avatarId, ctx.user.id);
+      }),
+
+    // Update personality profile
+    update: protectedProcedure
+      .input(
+        z.object({
+          profileId: z.string(),
+          data: z.object({
+            name: z.string().min(1).max(255).optional(),
+            description: z.string().optional(),
+            traits: z.array(z.string()).optional(),
+            backstory: z.string().optional(),
+            occupation: z.string().optional(),
+            age: z.number().optional(),
+            location: z.string().optional(),
+            interests: z.array(z.string()).optional(),
+            conversationStyle: z.string().optional(),
+            responseLength: z.enum(["short", "medium", "long"]).optional(),
+            emojiUsage: z.enum(["none", "minimal", "moderate", "frequent"]).optional(),
+            languageStyle: z.string().optional(),
+            voicePersonality: z.enum(["seductive", "playful", "professional", "sweet", "dominant"]).optional(),
+            voiceName: z.string().optional(),
+            flirtLevel: z.number().min(1).max(10).optional(),
+            nsfwWillingness: z.number().min(1).max(10).optional(),
+            responseSpeed: z.enum(["instant", "realistic", "slow"]).optional(),
+          }),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        return await personalityDb.updatePersonalityProfile(
+          input.profileId,
+          ctx.user.id,
+          input.data
+        );
+      }),
+
+    // Delete personality profile
+    delete: protectedProcedure
+      .input(z.object({ profileId: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const success = await personalityDb.deletePersonalityProfile(input.profileId, ctx.user.id);
+        return { success };
+      }),
+
+    // Get public templates
+    templates: protectedProcedure.query(async () => {
+      return await personalityDb.getPublicPersonalityTemplates();
+    }),
+
+    // Clone a template
+    cloneTemplate: protectedProcedure
+      .input(
+        z.object({
+          templateId: z.string(),
+          avatarId: z.string().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        return await personalityDb.clonePersonalityProfile(
+          input.templateId,
+          ctx.user.id,
+          input.avatarId
+        );
+      }),
   }),
 });
 

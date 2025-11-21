@@ -282,3 +282,51 @@ export const onlyfansAnalytics = mysqlTable("onlyfansAnalytics", {
 export type OnlyFansAnalytics = typeof onlyfansAnalytics.$inferSelect;
 export type InsertOnlyFansAnalytics = typeof onlyfansAnalytics.$inferInsert;
 
+
+
+/**
+ * Personality profiles - customizable avatar personalities
+ */
+export const personalityProfiles = mysqlTable("personalityProfiles", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  userId: varchar("userId", { length: 64 }).notNull(),
+  avatarId: varchar("avatarId", { length: 64 }),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  
+  // Personality traits
+  traits: json("traits").$type<string[]>().notNull(), // e.g., ["flirty", "playful", "confident"]
+  
+  // Backstory and bio
+  backstory: text("backstory"),
+  occupation: varchar("occupation", { length: 255 }),
+  age: int("age"),
+  location: varchar("location", { length: 255 }),
+  interests: json("interests").$type<string[]>(),
+  
+  // Conversation style
+  conversationStyle: varchar("conversationStyle", { length: 64 }).notNull(), // "casual", "formal", "flirty", "professional"
+  responseLength: mysqlEnum("responseLength", ["short", "medium", "long"]).default("medium"),
+  emojiUsage: mysqlEnum("emojiUsage", ["none", "minimal", "moderate", "frequent"]).default("moderate"),
+  languageStyle: varchar("languageStyle", { length: 64 }), // "casual", "sophisticated", "playful"
+  
+  // Voice characteristics
+  voicePersonality: mysqlEnum("voicePersonality", ["seductive", "playful", "professional", "sweet", "dominant"]).default("seductive"),
+  voiceName: varchar("voiceName", { length: 255 }), // Custom Hume voice name
+  
+  // Behavior settings
+  flirtLevel: int("flirtLevel").default(5), // 1-10 scale
+  nsfwWillingness: int("nsfwWillingness").default(5), // 1-10 scale
+  responseSpeed: mysqlEnum("responseSpeed", ["instant", "realistic", "slow"]).default("realistic"),
+  
+  // Template info
+  isTemplate: boolean("isTemplate").default(false),
+  isPublic: boolean("isPublic").default(false),
+  
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+
+export type PersonalityProfile = typeof personalityProfiles.$inferSelect;
+export type InsertPersonalityProfile = typeof personalityProfiles.$inferInsert;
+
