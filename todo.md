@@ -67,3 +67,9 @@
 - [x] Add preset selector to generation UI
 - [x] Create preset templates (Instagram Model, Anime Character, Professional Headshot, etc.)
 
+
+
+## Bug Fixes
+
+- [x] Fix missing getLoginUrl import in Home.tsx
+
